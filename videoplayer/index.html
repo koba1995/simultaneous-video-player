@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html><head>
+  <head>
+  <meta charset="utf-8">
+  <meta name="robots" content="noindex,noarchive">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Synchronous Videos Player</title>
+</head>
+<body>
+ <h1>video player</h1>
+ <p>Select date.</p>
+ <div id="table">
+ </div>
+<script>
+
+function get(uri,cb){
+  let xhr = new XMLHttpRequest();
+  xhr.open("GET",uri); 
+  xhr.setRequestHeader("Accept","application/json");
+  xhr.send();
+  let obj = this; 
+  xhr.onreadystatechange=function(){
+   if(this.readyState == 4){
+    let files = JSON.parse(this.responseText);
+    cb(files);
+   }
+  };
+}
+
+function addtree(context, _path, name){
+ context.appendChild(d.createTextNode(name));
+ let ul=d.createElement('ul');
+ context.appendChild(ul);
+ let path = _path + name + "/";
+ get(path, (files)=>{
+  for(let i in files){
+   if(files[i].type == "directory"){
+    let li=d.createElement('li');
+    ul.appendChild(li);
+    addtree(li, path, files[i].name);
+   }else{
+    let li=d.createElement('li');
+    ul.appendChild(li);
+    li.appendChild(d.createTextNode(files[i].name));
+   }
+  }
+ });
+}
+function addtree1(context, _path, name){
+ d=document;
+ context.appendChild(d.createTextNode(name));
+ let ul=d.createElement('ul');
+ context.appendChild(ul);
+ let path = _path+name+"/"
+ get(path, (files)=>{
+  for(let i=files.length-1; i>=0; i--){
+   if(files[i].type == "directory"){
+    let li=d.createElement('li');
+    ul.appendChild(li);
+    addtree0(li, path, files[i].name);
+   }
+  }
+ });
+}
+function addtree0(context, path, name){
+  let a = d.createElement('a');
+  a.appendChild(d.createTextNode(name));
+  a.href = "player.html?date=" + name;
+    context.appendChild(a);
+
+}
+
+root="records/date";
+
+addtree1(table, root, "");
+
+</script>
+
+</body>
+</html>
+

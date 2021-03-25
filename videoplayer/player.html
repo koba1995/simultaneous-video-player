@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html><head>
+  <meta charset="utf-8">
+  <meta name="robots" content="noindex,noarchive">
+  <meta name="viewport" content="width=660px">
+  <title>Synchronous Videos Player</title>
+<style>
+div#controlpanel{
+  position: fixed;
+  top: 0px;
+  left: 0px;
+  width: 100%;
+  height: 120px;
+  z-index: 10;
+  border-bottom: solid;
+  background-color: #fff;
+}
+h3{
+  display: inline-block;
+}
+div.controlbuttons{
+  margin: 10px;
+  width: 640px;
+}
+button#startstopbutton{
+  font-size: large;
+}
+input.time{
+  width: 50px;
+}
+div#body{
+  margin-top: 130px;
+  z-index: 1;
+}
+
+div.floor{
+  display: inline-block;
+  border: none;
+  vertical-align: top;
+}
+div.room{
+  display: inline-block;
+  border: none;
+  vertical-align: top;
+}
+div.vframe{
+  display: inline-block;
+  border: solid 1px;
+  vertical-align: top;
+  margin-bottom: 8px;
+  margin-top: 8px;
+}
+video{
+  /*width: 320px;*/
+  height:240px;
+  display: block;
+}
+div.vpanel{
+  display: block;
+}
+button.n{
+  float: right;
+}
+button.p{
+  float: left;
+}
+label{
+  font-weight: bold;
+}
+</style>
+<script>
+
+function seturltime(hms, recordhistory){
+ if(recordhistory)window.history.pushState('','',location.href);
+ window.history.replaceState('','','?date='+ date +'&h='+ hms.h +'&m='+ hms.m +'&s='+ hms.s );
+}
+
+</script>
+<script src="timer.js"></script>
+<script src="video.js"></script>
+<script>
+
+function startstop(){
+ if(timer.interval || timer.waiting){
+  startstopbutton.innerText='Start';
+  timer.stop(); 
+ }else{
+  startstopbutton.innerText='Stop';
+  timer.start(); 
+ }
+}
+
+</script>
+</head>
+<body>
+<div id="controlpanel">
+ <div class="controlbuttons">
+ <h3 id="date"></h3>
+ &nbsp; &nbsp;
+ H:<input id="hou" type="number" class="time">
+ M:<input id="min" type="number" class="time">
+ S:<input id="sec" type="number" class="time">
+ &nbsp; &nbsp;
+ <button onclick="startstop();" id="startstopbutton">Start</button>
+ &nbsp; &nbsp;
+ <span id="statusbox"></span>
+ </div>
+ <div class="controlbuttons">
+ <button onclick="timer.moveTimeSec(-6*60*60)">-6h</button>
+ <button onclick="timer.moveTimeSec(-1*60*60)">-1h</button>
+ <button onclick="timer.moveTimeSec(-10*60)">-10m</button>
+ <button onclick="timer.moveTimeSec(-1*60)">-1m</button>
+ <button onclick="timer.moveTimeSec(-10)">-10s</button>
+ &nbsp; &nbsp;
+ <button onclick="timer.moveTimeSec(10)">+10s</button>
+ <button onclick="timer.moveTimeSec(1*60)">+1m</button>
+ <button onclick="timer.moveTimeSec(10*60)">+10m</button>
+ <button onclick="timer.moveTimeSec(1*60*60)">+1h</button>
+ <button onclick="timer.moveTimeSec(6*60*60)">+6h</button>
+ </div>
+</div><!-- controlpanel -->
+<div id="body">
+
+<div class="floor">
+<div class="room">
+
+ <div class="vframe">
+  <label>
+  <input type="checkbox" id="check1" checked></input>
+Camera1
+  </label>
+  <video id="video1" src="dummy.mp4" ></video>
+  <div class="vpanel" id="panel1"></div>
+ </div><!-- vframe -->
+
+ <div class="vframe">
+  <label>
+  <input type="checkbox" id="check2" checked></input>
+Camera2
+  </label>
+  <video id="video2" src="dummy.mp4" ></video>
+  <div class="vpanel" id="panel2"></div>
+ </div><!-- vframe -->
+
+</div><!-- room -->
+</div><!-- floor -->
+
+</div><!-- body -->
+<script>
+let date;
+let timer = new timerclass(hou,min,sec, statusbox);
+
+{
+  let input={};
+  {
+   let s = window.location.search.substring(1).split('&');
+   for(let i in s){
+    let s1 = s[i].split('=');
+    input[s1.shift()]=s1.join('=');
+   }
+  }
+
+  if(input['date'] ){
+   date = input['date'];
+  }else{
+   let now = new Date();
+   now = new Date(now.getTime() + 9*3600*1000);
+   let y=now.getUTCFullYear().toString(),m=(1+now.getUTCMonth()).toString(),d=now.getUTCDate().toString();
+   if(m.length<2) m="0"+m;
+   if(d.length<2) d="0"+d;
+   date = y +"_"+ m +"_"+ d;
+  }
+  {
+   let h,m,s;
+   if(input['h'] && input['m'] && input['s'] ){
+    h=input['h'],m=input['m'],s=input['s'];
+   }else{
+    h=m=s=0;
+   }
+  timer.setTimeFromUrl(h,m,s) ;
+ }
+
+}
+
+ document.getElementById('date').appendChild(document.createTextNode(date));
+
+ cam1=new timervideo(timer, "records/date/"+date+"/cam1/", video1, panel1, check1 );
+ cam2=new timervideo(timer, "records/date/"+date+"/cam2/", video2, panel2, check2 );
+
+ /* ADD HERE TO ADD NEW CAMERA */
+
+
+ window.onkeydown = (e)=>{
+  switch(e.keyCode){
+   case 32:
+    // Space key //
+    startstop();
+    return false;
+   break;
+   case 39:
+    // Right key //
+    timer.moveTimeSec(10);
+    return false;
+   break;
+   case 37:
+    // Left key //
+    timer.moveTimeSec(-10);
+    return false;
+   break;
+   default:
+    //console.log(e);
+  }
+ }
+
+</script>
+</body></html>
+
