@@ -27,9 +27,9 @@ class timervideo{
   this.panel.prev['data-dtime']=0;
   this.panel.prev['data-dtime']=0;
   this.panel.next['data-dtime']=0;
-  this.panel.prev.onclick=(e)=>{this.timer.moveTimeSec(e.target['data-dtime']);};
-  this.panel.last.onclick=(e)=>{this.timer.moveTimeSec(e.target['data-dtime']);};
-  this.panel.next.onclick=(e)=>{this.timer.moveTimeSec(e.target['data-dtime']);};
+  this.panel.prev.onclick=(e)=>{this.timer.moveTimeSec(e.target.dtime);};
+  this.panel.last.onclick=(e)=>{this.timer.moveTimeSec(e.target.dtime);};
+  this.panel.next.onclick=(e)=>{this.timer.moveTimeSec(e.target.dtime);};
   panelelement.appendChild(this.panel.prev);
   panelelement.appendChild(this.panel.last);
   panelelement.appendChild(this.panel.next);
@@ -42,7 +42,7 @@ class timervideo{
   this.video.style.height=this.height+'px';
   this.video.onloadedmetadata = ()=>{
     console.debug("loadedmetadata ", this.videosrc, '  duration=', this.video.duration);
-    this.time(this.timer.getTimeSec());
+    this.timeupdate();
     if(this.videosrc && !this.video.style.width)
       this.video.style.width = this.height*this.video.videoWidth/this.video.videoHeight+'px';
   };
@@ -86,7 +86,7 @@ class timervideo{
   this.panel.prev.style.display=(value?'':'none');
   this.panel.next.style.display=(value?'':'none');
   this.panel.last.style.display=(value?'':'none');
-  if(value) this.time(this.timer.getTimeSec());
+  if(value) this.timeupdate();
  };
 
  updatefile(){
@@ -107,7 +107,7 @@ class timervideo{
     }
     console.debug("updatefile ", obj.path, obj.files);
     if(obj.enabled){
-     obj.time(obj.timer.getTimeSec());
+     obj.timeupdate();
     }
    }
   };
@@ -137,8 +137,11 @@ class timervideo{
      };
  }
 
- time(timestr){
-  let file=this.fileoftime(timestr);
+ timeupdate(){
+    this.time(this.timer.getTimeSec());
+ }
+ time(time){
+  let file=this.fileoftime(time);
   //console.debug("fileoftime() res: ",file);
 
   // update panel button //
@@ -146,12 +149,12 @@ class timervideo{
   this.panel.prev.disabled = file.prev_cursor?0:1;
   this.panel.last.disabled = file.cursor?0:1;
   this.panel.next.disabled = file.next_cursor?0:1;
-  this.panel.prev['data-dtime'] = -file.prev_cursor;
-  this.panel.last['data-dtime'] = -file.cursor;
-  this.panel.next['data-dtime'] = -file.next_cursor;
-  this.panel.prev.innerText=file.prev_cursor;
-  this.panel.last.innerText=file.cursor;
-  this.panel.next.innerText=-file.next_cursor;
+  this.panel.prev.dtime = -file.prev_cursor;
+  this.panel.last.dtime = -file.cursor;
+  this.panel.next.dtime = -file.next_cursor;
+  this.panel.prev.innerText=parseInt(file.prev_cursor).toString();
+  this.panel.last.innerText=parseInt(file.cursor).toString();
+  this.panel.next.innerText=parseInt(-file.next_cursor).toString();
 
   // update border //
   this.video.style.border = (file.name && (file.cursor==0 || file.cursor<this.video.duration))?"solid red":"solid white";
@@ -171,11 +174,11 @@ class timervideo{
    }
 
    // if metadata is not loaded //
-   if(!this.video.duration){ this.waiting=true; this.timer.wait(); return; }
+   if(!this.video.duration){ console.debug('metadata not loaded ', this.videosrc); this.waiting=true; this.timer.wait(); return; }
 
    let d=this.video.currentTime - file.cursor;
    if(file.cursor < this.video.duration){
-     if((d<-1 || d>1) )
+     if((d<=-1 || d>=1) )
        this.video.currentTime = file.cursor;
      //  this.playing        : The video element is in (currentTime < duration) condition and playing.
      //  this.timer.interval : Timer is playing.

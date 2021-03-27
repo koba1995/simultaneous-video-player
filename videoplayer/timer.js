@@ -39,7 +39,7 @@ class timerclass{
  }
 
  getTimeSec(){
-   return parseInt(this.playtime/1000);
+   return (this.playtime/1000);
  }
 
  chkmsec(msec){
@@ -62,7 +62,7 @@ class timerclass{
  // with updating url
  // with updating HMS
  moveTimeSec(sec){
-  this.setTimeMS( (this.getTimeSec() + sec)*1000 );
+  this.setTimeMS( this.playtime + sec*1000 );
  }
 
  // h:m:s
@@ -131,6 +131,7 @@ class timerclass{
  }
 
  stop(){
+  this.tickfn();
   this.video.forEach(v => v.stop());
   clearInterval(this.interval);
   this.interval=0;
