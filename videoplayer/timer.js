@@ -62,8 +62,6 @@ class timerclass{
  // with updating url
  // with updating HMS
  moveTimeSec(sec){
-  //console.log('moveTime:', sec);
-  //this.setTimeMS( this.playtime + sec*1000 );
   this.setTimeMS( (this.getTimeSec() + sec)*1000 );
  }
 
@@ -83,9 +81,6 @@ class timerclass{
  // with updating url
  // with updating HMS
  setTimeFromInputHMS(h,m,s){
-  //let hms = this.setTimeFromUrl(h,m,s);
-  //seturltime(hms, 0);
-  //
   let msec = ((parseInt(h)*60+parseInt(m))*60+parseInt(s))*1000 ;
   msec=this.chkmsec(msec);
   this.playtime = msec ;
@@ -100,10 +95,7 @@ class timerclass{
  // with no updating HMS
  seekvid(){
   let s = this.getTimeSec();
-  for(let i=0; i<this.vidcount;i++)
-  if(this.video[i].enabled){
-   this.video[i].time(s);
-  }
+  this.video.filter(v => v.enabled).forEach(v => v.time(s) );
  }
 
 
@@ -124,26 +116,22 @@ class timerclass{
 
  start(){
   if(this.interval) return;
-  for(let i=0; i<this.vidcount;i++){
-   if(this.video[i].enabled && this.video[i].waiting){
+
+  if( this.video.filter(v => (v.enabled && v.waiting)).length > 0 ){
     this.waiting=true;
     this.status();
     return;
-   }
   }
   let now = new Date();
   this.prevMS = now.getTime();
-  for(let i=0; i<this.vidcount;i++){
-   if(this.video[i].enabled)
-    this.video[i].start();
-  }
+  this.video.filter(v => v.enabled).forEach(v => v.start() );
   this.interval=setInterval(()=>{this.tickfn();}, 500);
   console.log("Timer start.");
   this.status();
  }
 
  stop(){
-  for(let i=0; i<this.vidcount;i++) this.video[i].stop();
+  this.video.forEach(v => v.stop());
   clearInterval(this.interval);
   this.interval=0;
   this.waiting=false;
@@ -155,14 +143,7 @@ class timerclass{
    if(this.interval)
      this.waiting=true;
 
-  let c=0;
-  for(let i=0; i<this.vidcount;i++){
-   this.video[i].stop();
-   if(this.video[i].enabled && this.video[i].waiting){
-    c++;
-    //return;
-   }
-  }
+  let c=this.video.filter(v => v.waiting).length
   console.debug('waiting_count:', c);
   clearInterval(this.interval);
   this.interval=0;
@@ -171,13 +152,7 @@ class timerclass{
  }
 
  resume(){
-  let c=0;
-  for(let i=0; i<this.vidcount;i++){
-   if(this.video[i].enabled && this.video[i].waiting){
-    c++;
-    //return;
-   }
-  }
+  let c=this.video.filter(v => v.waiting).length
   console.debug('waiting_count:', c);
   if(c==0 && this.waiting){
    this.start();

@@ -3,7 +3,7 @@
   <meta charset="utf-8">
   <meta name="robots" content="noindex,noarchive">
   <meta name="viewport" content="width=660px">
-  <title>Synchronous Videos Player</title>
+  <title>Simultaneous Video Player</title>
 <style>
 div#controlpanel{
   position: fixed;
@@ -170,15 +170,14 @@ let timer = new timerclass(hou,min,sec, statusbox);
    if(d.length<2) d="0"+d;
    date = y +"_"+ m +"_"+ d;
   }
-  {
-   let h,m,s;
-   if(input['h'] && input['m'] && input['s'] ){
+
+  let h,m,s;
+  if(input['h'] && input['m'] && input['s'] ){
     h=input['h'],m=input['m'],s=input['s'];
-   }else{
+  }else{
     h=m=s=0;
-   }
+  }
   timer.setTimeFromUrl(h,m,s) ;
- }
 
 }
 

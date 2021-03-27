@@ -135,13 +135,13 @@ class timervideo{
       name: lastfile.name, cursor: (time - lastfile.time), 
       prev_cursor: time - prevfile.time, 
      };
-     //
  }
 
  time(timestr){
   let file=this.fileoftime(timestr);
   //console.debug("fileoftime() res: ",file);
 
+  // update panel button //
   this.file_next_name = file.next_name;
   this.panel.prev.disabled = file.prev_cursor?0:1;
   this.panel.last.disabled = file.cursor?0:1;
@@ -153,8 +153,10 @@ class timervideo{
   this.panel.last.innerText=file.cursor;
   this.panel.next.innerText=-file.next_cursor;
 
+  // update border //
   this.video.style.border = (file.name && (file.cursor==0 || file.cursor<this.video.duration))?"solid red":"solid white";
 
+  // update video //
   if(file.name){
    if(this.videosrc!=file.name){
     this.videosrc=file.name;
@@ -169,7 +171,7 @@ class timervideo{
    }
 
    // if metadata is not loaded //
-   if(!this.video.duration){ this.waitingtrue;this.timer.wait(); return; }
+   if(!this.video.duration){ this.waiting=true; this.timer.wait(); return; }
 
    let d=this.video.currentTime - file.cursor;
    if(file.cursor < this.video.duration){
@@ -191,6 +193,7 @@ class timervideo{
     this.videosrc="";
    }
   }
+  //
  }
 
  preload(next_name){
@@ -209,13 +212,10 @@ class timervideo{
    }
  }
  stop(){
-  //if(this.playing){
    this.playing=false;
+   // To avoid "DOMException: The fetching process for the media resource was aborted by the user agent at the user's request.".
+   // this.video.pause() will be called in this.video.oncalplay.
    if(!this.waiting) 
    this.video.pause();
-  //}
  }
 }
-
-
-
