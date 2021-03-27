@@ -9,6 +9,7 @@ class timerclass{
   this.video=[];
   this.vidcount=0;
   this.waiting=false;
+  this.skipintv=false;
 
   // HMS
   this.hou.onchange =
@@ -22,6 +23,13 @@ class timerclass{
    };
   //
  }
+
+ addvideo(video){
+  this.video[this.vidcount]=video;
+  video.id=this.vidcount;
+  this.vidcount++;
+ }
+
 
  // updating input HMS
  updateHMS(){
@@ -101,6 +109,7 @@ class timerclass{
 
  // with updating url
  // with updating HMS
+ // Called inteanally by timer
  tickfn(){
   let now = new Date();
   this.playtime += now.getTime() - this.prevMS;
@@ -108,10 +117,19 @@ class timerclass{
   let hms = this.updateHMS();
   seturltime(hms, 0);
   this.seekvid();
+  if(this.skipintv){
+    if( !this.video.filter(v => (v.enabled && v.videosrc && v.video.currentTime<v.video.duration)).length ){
+      // all video has finished
+      //console.log('all video has finished');
+      this.seeknext();
+    }
+  }
  }
 
- status(){
-  this.statusbox.textContent=timer.interval?"Playing":timer.waiting?"Loading..":"Stopped";
+ seeknext(){
+   let next = this.video.filter(v => v.enabled).reduce((a,v)=>( v.panel.next.dtime<a ? v.panel.next.dtime : a ), 86400);
+   if(next!=86400)
+     this.moveTimeSec(next);
  }
 
  start(){
@@ -162,11 +180,9 @@ class timerclass{
   this.status();
  }
 
- addvideo(video){
-  this.video[this.vidcount]=video;
-  video.id=this.vidcount;
-  this.vidcount++;
- }
 
+ status(){
+  this.statusbox.textContent=timer.interval?"Playing":timer.waiting?"Loading..":"Stopped";
+ }
 
 }

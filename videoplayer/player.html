@@ -10,17 +10,17 @@ div#controlpanel{
   top: 0px;
   left: 0px;
   width: 100%;
-  height: 120px;
+  height: 122px;
   z-index: 10;
   border-bottom: solid;
   background-color: #fff;
 }
-h3{
-  display: inline-block;
+h1{
+  font-size: large;
 }
 div.controlbuttons{
   margin: 10px;
-  width: 640px;
+  width: 500px;
 }
 button#startstopbutton{
   font-size: large;
@@ -29,7 +29,7 @@ input.time{
   width: 50px;
 }
 div#body{
-  margin-top: 130px;
+  margin-top: 125px;
   z-index: 1;
 }
 
@@ -64,7 +64,7 @@ button.n{
 button.p{
   float: left;
 }
-label{
+.cameraname{
   font-weight: bold;
 }
 </style>
@@ -94,15 +94,22 @@ function startstop(){
 </head>
 <body>
 <div id="controlpanel">
+  <div style="float:right;">
+   <button onclick="timer.video.forEach(v => v.updatefile());">reload file list</button>
+   <br>
+   <label><input type="checkbox" onchange="enable_preload=this.checked;" checked></input>Preload next videos</label>
+   <br>
+   <label><input type="checkbox" onchange="timer.skipintv=this.checked;"></input>Skip intervals</label>
+   <br>
+   <button onclick="timer.seeknext();">nearest next-&gt;</button>
+  </div>
+ <h1 id="date"></h1>
  <div class="controlbuttons">
- <h3 id="date"></h3>
- &nbsp; &nbsp;
  H:<input id="hou" type="number" class="time">
  M:<input id="min" type="number" class="time">
  S:<input id="sec" type="number" class="time">
  &nbsp; &nbsp;
  <button onclick="startstop();" id="startstopbutton">Start</button>
- &nbsp; &nbsp;
  <span id="statusbox"></span>
  </div>
  <div class="controlbuttons">
@@ -125,7 +132,7 @@ function startstop(){
 <div class="room">
 
  <div class="vframe">
-  <label>
+  <label class="cameraname">
   <input type="checkbox" id="check1" checked></input>
 Camera1
   </label>
@@ -134,7 +141,7 @@ Camera1
  </div><!-- vframe -->
 
  <div class="vframe">
-  <label>
+  <label class="cameraname">
   <input type="checkbox" id="check2" checked></input>
 Camera2
   </label>
