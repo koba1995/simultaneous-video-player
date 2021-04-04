@@ -20,7 +20,7 @@ h1{
 }
 div.controlbuttons{
   margin: 10px;
-  width: 500px;
+  width: 550px;
 }
 button#startstopbutton{
   font-size: large;
@@ -51,7 +51,6 @@ div.vframe{
   margin-top: 8px;
 }
 video{
-  /*width: 320px;*/
   height:240px;
   display: block;
 }
@@ -78,30 +77,17 @@ function seturltime(hms, recordhistory){
 </script>
 <script src="timer.js"></script>
 <script src="video.js"></script>
-<script>
-
-function startstop(){
- if(timer.interval || timer.waiting){
-  startstopbutton.innerText='Start';
-  timer.stop(); 
- }else{
-  startstopbutton.innerText='Stop';
-  timer.start(); 
- }
-}
-
-</script>
 </head>
 <body>
 <div id="controlpanel">
   <div style="float:right;">
-   <button onclick="timer.video.forEach(v => v.updatefile());">reload file list</button>
+   <button id="buttonreload">reload file list</button>
    <br>
-   <label><input type="checkbox" onchange="enable_preload=this.checked;" checked></input>Preload next videos</label>
+   <label><input type="checkbox" id="checkpreload" checked></input>Preload next videos</label>
    <br>
-   <label><input type="checkbox" onchange="timer.skipintv=this.checked;"></input>Skip intervals</label>
+   <label><input type="checkbox" id="checkskipintv"></input>Skip intervals</label>
    <br>
-   <button onclick="timer.seeknext();">nearest next-&gt;</button>
+   <button id="buttonseeknext">nearest next-&gt;</button>
   </div>
  <h1 id="date"></h1>
  <div class="controlbuttons">
@@ -109,7 +95,7 @@ function startstop(){
  M:<input id="min" type="number" class="time">
  S:<input id="sec" type="number" class="time">
  &nbsp; &nbsp;
- <button onclick="startstop();" id="startstopbutton">Start</button>
+ <button id="buttonstartstop">Start</button>
  <span id="statusbox"></span>
  </div>
  <div class="controlbuttons">
@@ -175,7 +161,7 @@ let timer = new timerclass(hou,min,sec, statusbox);
    let y=now.getUTCFullYear().toString(),m=(1+now.getUTCMonth()).toString(),d=now.getUTCDate().toString();
    if(m.length<2) m="0"+m;
    if(d.length<2) d="0"+d;
-   date = y +"_"+ m +"_"+ d;
+   date = y +"-"+ m +"-"+ d;
   }
 
   let h,m,s;
@@ -196,27 +182,79 @@ let timer = new timerclass(hou,min,sec, statusbox);
  /* ADD HERE TO ADD NEW CAMERA */
 
 
- window.onkeydown = (e)=>{
-  switch(e.keyCode){
-   case 32:
-    // Space key //
-    startstop();
-    return false;
-   break;
-   case 39:
-    // Right key //
-    timer.moveTimeSec(10);
-    return false;
-   break;
-   case 37:
-    // Left key //
-    timer.moveTimeSec(-10);
-    return false;
-   break;
-   default:
-    //console.log(e);
-  }
+// UI //
+function startstop(){
+ if(timer.interval || timer.waiting){
+  buttonstartstop.innerText='Start';
+  timer.stop(); 
+ }else{
+  buttonstartstop.innerText='Stop';
+  timer.start(); 
  }
+}
+buttonstartstop.onclick = startstop;
+buttonreload.onclick = function(){ timer.video.forEach(v => v.updatefile()); };
+checkpreload.onchange = function(){ enable_preload=this.checked; };
+checkpreload.onchange();
+checkskipintv.onchange = function(){ timer.skipintv=this.checked; };
+checkskipintv.onchange();
+buttonseeknext.onclick = function(){ timer.seeknext(); };
+
+hou.onkeypress = 
+min.onkeypress = 
+sec.onkeypress = 
+function(e){
+  if(e.key<'0' || e.key>'9')
+    return false;
+};
+
+
+// key //
+window.onkeypress = (e)=>{
+  switch(e.key){
+    case ' ':
+      if(e.target.tagName=='BUTTON') return;
+      if(e.target.tagName=='INPUT') return;
+    case 'k':
+      startstop();
+      return false;
+    break;
+    case 'j':
+      timer.moveTimeSec(-10);
+      return false;
+    break;
+    case 'l':
+      timer.moveTimeSec(10);
+      return false;
+    break;
+    case '<':
+      timer.moveTimeSec(-6*60*60);
+      return false;
+    break;
+    case '>':
+      timer.moveTimeSec(6*60*60);
+      return false;
+    break;
+    case 'r':
+      timer.video.forEach(v => v.updatefile());
+      return false;
+    break;
+    case 'n':
+      timer.seeknext();
+      return false;
+    break;
+    case 'p':
+      checkpreload.click();
+      return false;
+    break;
+    case 's':
+      checkskipintv.click();
+      return false;
+    break;
+    default:
+      if(e.target.tagName=='INPUT') return;
+  }
+};
 
 </script>
 </body></html>

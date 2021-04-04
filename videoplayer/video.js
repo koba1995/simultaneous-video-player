@@ -66,6 +66,11 @@ class timervideo{
     //if(!this.timer.waiting && this.timer.interval )
     if(enable_preload) this.preload(this.file_next_name);
   };
+  this.video.onerror = ()=>{
+    console.debug('error',this.videosrc );
+    this.waiting=false;
+    this.timer.resume(this);
+  };
 
   // preload video element //
   this.preload_video = document.createElement('video');

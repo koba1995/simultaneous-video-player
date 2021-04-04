@@ -118,7 +118,7 @@ class timerclass{
   seturltime(hms, 0);
   this.seekvid();
   if(this.skipintv){
-    if( !this.video.filter(v => (v.enabled && v.videosrc && v.video.currentTime<v.video.duration)).length ){
+    if( !this.video.filter(v => ( v.enabled && v.videosrc && (!v.video.duration || v.video.currentTime<v.video.duration) )).length ){
       // all video has finished
       //console.log('all video has finished');
       this.seeknext();
@@ -149,7 +149,8 @@ class timerclass{
  }
 
  stop(){
-  this.tickfn();
+  if(this.interval && !this.waiting)
+    this.tickfn();
   this.video.forEach(v => v.stop());
   clearInterval(this.interval);
   this.interval=0;
